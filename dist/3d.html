@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Spirit Possession: Air, Land, & Sea</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #87CEEB;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none;
+        }
+
+        /* Desktop UI */
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            pointer-events: none;
+            user-select: none;
+            transition: opacity 0.3s;
+            max-width: 300px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .key {
+            background: #fff;
+            color: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        #message-box {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffeb3b;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        /* Gemini UI Elements */
+        #gemini-panel {
+            margin-top: 10px;
+            border-top: 1px solid #555;
+            padding-top: 10px;
+        }
+
+        .ai-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        #quest-box {
+            background: rgba(50, 0, 100, 0.6);
+            border: 1px solid #a0a;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #e0bdff;
+            display: none;
+            /* Hidden initially */
+        }
+
+        #spirit-subtitles {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            width: 80%;
+            pointer-events: none;
+            display: none;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        #minimap-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        #minimap {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            pointer-events: none;
+            /* Let touches pass through to buttons */
+        }
+
+        .control-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: auto;
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .control-btn:active {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* D-Pad */
+        #dpad-area {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 160px;
+            height: 160px;
+        }
+
+        .dpad-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+        }
+
+        #btn-up {
+            top: 0;
+            left: 55px;
+        }
+
+        #btn-down {
+            bottom: 0;
+            left: 55px;
+        }
+
+        #btn-left {
+            top: 55px;
+            left: 0;
+        }
+
+        #btn-right {
+            top: 55px;
+            right: 0;
+        }
+
+        /* Action Buttons */
+        #action-area {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 180px;
+            height: 160px;
+        }
+
+        .action-circle {
+            width: 60px;
+            height: 60px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        #btn-e {
+            bottom: 90px;
+            right: 0px;
+            background: rgba(255, 215, 0, 0.3);
+            border-color: gold;
+        }
+
+        /* Possess */
+        #btn-space {
+            bottom: 0px;
+            right: 60px;
+            width: 70px;
+            height: 70px;
+        }
+
+        /* Brake/Ascend */
+        #btn-shift {
+            bottom: 0px;
+            right: -10px;
+            width: 50px;
+            height: 50px;
+            font-size: 12px;
+        }
+
+        /* Boost */
+
+        /* Mobile Layout Overrides */
+        body.is-mobile #minimap-container {
+            top: 20px;
+            right: 20px;
+            bottom: auto;
+            width: 120px;
+            height: 120px;
+        }
+
+        body.is-mobile #ui-layer {
+            font-size: 12px;
+            padding: 10px;
+            width: auto;
+        }
+
+        body.is-mobile #ui-layer p:not(:first-child) {
+            display: none;
+            /* Hide instructions on mobile */
+        }
+
+        body.is-mobile #mobile-controls {
+            display: block;
+        }
+
+        /* Make AI buttons visible on mobile ui layer */
+        body.is-mobile #gemini-panel {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loading">Loading 3D Engine...</div>
+    <div id="spirit-subtitles"></div>
+
+    <div id="ui-layer">
+        <h1>Spirit Walker</h1>
+        <p>Current Form: <span id="status" style="color:cyan; font-weight:bold">Spirit</span></p>
+        <hr style="border: 0.5px solid #555">
+        <p><span class="key">W</span> <span class="key">A</span> <span class="key">S</span> <span class="key">D</span>
+            to Move/Steer</p>
+        <p><span class="key">Space</span> to Brake / Ascend (Plane)</p>
+        <p><span class="key">Shift</span> to Boost / Descend</p>
+        <p><span class="key">E</span> to Possess / Eject</p>
+
+        <div id="gemini-panel">
+            <div class="ai-btn">✨ T: Spirit Voice</div>
+            <div class="ai-btn">✨ Q: New Quest</div>
+            <div id="quest-box">Mission: Explore the world...</div>
+        </div>
+    </div>
+
+    <div id="message-box">Press 'E' to Possess</div>
+
+    <div id="minimap-container">
+        <canvas id="minimap" width="200" height="200"></canvas>
+    </div>
+
+    <div id="mobile-controls">
+        <div id="dpad-area">
+            <div id="btn-up" class="control-btn dpad-btn" data-key="w">▲</div>
+            <div id="btn-down" class="control-btn dpad-btn" data-key="s">▼</div>
+            <div id="btn-left" class="control-btn dpad-btn" data-key="a">◀</div>
+            <div id="btn-right" class="control-btn dpad-btn" data-key="d">▶</div>
+        </div>
+        <div id="action-area">
+            <div id="btn-e" class="control-btn action-circle" data-key="e">Possess</div>
+            <div id="btn-space" class="control-btn action-circle" data-key="space">Ascend<br>Brake</div>
+            <div id="btn-shift" class="control-btn action-circle" data-key="shift">Boost</div>
+            <!-- Hidden Logic Buttons for Mobile -->
+            <div id="btn-t" class="control-btn action-circle" data-key="t"
+                style="bottom: 90px; right: 70px; width: 40px; height: 40px; font-size: 10px; background: #6a11cb;">
+                Voice</div>
+            <div id="btn-q" class="control-btn action-circle" data-key="q"
+                style="bottom: 135px; right: 35px; width: 40px; height: 40px; font-size: 10px; background: #2575fc;">
+                Quest</div>
+        </div>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // --- Gemini API Configuration ---
+        const apiKey = ""; // System provides key
+        let isGenerating = false;
+
+        // --- PCM to WAV Converter for TTS ---
+        function pcmToWav(pcmData, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.length);
+            const view = new DataView(buffer);
+
+            const writeString = (view, offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcmData.length, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcmData.length, true);
+
+            const pcmView = new Uint8Array(buffer, 44);
+            pcmView.set(new Uint8Array(pcmData));
+
+            return buffer;
+        }
+
+        async function callGeminiTTS(text, voiceName = "Kore") {
+            if (isGenerating) return;
+            isGenerating = true;
+            const subEl = document.getElementById('spirit-subtitles');
+            subEl.innerText = text;
+            subEl.style.display = 'block';
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: text }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: {
+                                voiceConfig: {
+                                    prebuiltVoiceConfig: { voiceName: voiceName }
+                                }
+                            }
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error(response.statusText);
+
+                const result = await response.json();
+                const audioData = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+                if (audioData) {
+                    // Decode Base64 to binary
+                    const binaryString = window.atob(audioData);
+                    const len = binaryString.length;
+                    const bytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+
+                    // Convert PCM to WAV (Assuming 24000Hz for Gemini TTS usually, but let's try 24k)
+                    const wavBuffer = pcmToWav(bytes.buffer, 24000);
+                    const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+                    const url = URL.createObjectURL(blob);
+                    const audio = new Audio(url);
+                    audio.play();
+
+                    audio.onended = () => {
+                        subEl.style.display = 'none';
+                        isGenerating = false;
+                    };
+                } else {
+                    isGenerating = false;
+                }
+
+            } catch (e) {
+                console.error("TTS Error", e);
+                subEl.innerText = "Spirit voice fading...";
+                setTimeout(() => subEl.style.display = 'none', 2000);
+                isGenerating = false;
+            }
+        }
+
+        async function generateQuest(context) {
+            const questBox = document.getElementById('quest-box');
+            questBox.style.display = 'block';
+            questBox.innerText = "Consulting the spirits...";
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Generate a short, fun, 1-sentence mission for a video game player who is currently controlling a ${context.type} in a low-poly world with lakes, roads, and trees. Current Speed: ${context.speed}. Keep it under 10 words.` }] }]
+                    })
+                });
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Explore the world freely.";
+                questBox.innerHTML = `<span style="color:gold">★ QUEST:</span> ${text}`;
+            } catch (e) {
+                console.error(e);
+                questBox.innerText = "The spirits are silent.";
+            }
+        }
+
+        async function generateSpiritThought(context) {
+            if (isGenerating) return;
+
+            // Different voices for different vehicles
+            let voice = "Kore"; // Default Spirit
+            if (context.type === 'car') voice = "Fenrir"; // Energetic/Deep
+            if (context.type === 'boat') voice = "Puck"; // Playful
+            if (context.type === 'plane') voice = "Zephyr"; // Airy/Calm
+
+            const prompt = `You are the internal voice of a ${context.type} in a game. 
+            Context: Speed=${context.speed}, Location=${context.location}. 
+            Personality: Car=Eager/Fast, Boat=Chill/Surfer, Plane=Proud/Pilot, Spirit=Mystical.
+            Write a VERY short (max 6 words) reactive thought.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                    callGeminiTTS(text, voice);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- Game State & Constants ---
+        const WORLD_SIZE = 2000;
+        const WATER_LEVEL = -2;
+        const GROUND_Y = 0.8; // Adjusted height to minimize clipping/floating
+        let scene, camera, renderer, clock;
+        let playerState = 'spirit'; // spirit, car, boat, plane
+        let currentVehicle = null;
+        let spiritObj = null;
+
+        const vehicles = [];
+        const obstacles = []; // Array to store tree positions
+        const roads = []; // Array to store road data
+        const input = { w: false, a: false, s: false, d: false, space: false, shift: false, e: false };
+        let cameraOffset = new THREE.Vector3(0, 5, 10);
+        let cameraLookAt = new THREE.Vector3(0, 0, 0);
+        let spiritCameraAngle = 0;
+
+        // DOM Elements
+        const statusEl = document.getElementById('status');
+        const msgBox = document.getElementById('message-box');
+        const loadingEl = document.getElementById('loading');
+
+        // Minimap
+        const mapCanvas = document.getElementById('minimap');
+        const mapCtx = mapCanvas.getContext('2d');
+        const MAP_SCALE = 0.1; // 200px map / 2000 world size
+        const MAP_OFFSET = 100; // Center of map
+
+        // --- Initialization ---
+        window.onload = function () {
+            checkMobile();
+            init();
+            setupMobileControls();
+            loadingEl.style.display = 'none';
+            animate();
+        };
+
+        function checkMobile() {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 800;
+            if (isMobile) {
+                document.body.classList.add('is-mobile');
+            }
+        }
+
+        function setupMobileControls() {
+            const btns = document.querySelectorAll('.control-btn');
+
+            btns.forEach(btn => {
+                const key = btn.getAttribute('data-key');
+
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (key === 'e') togglePossession();
+                    else if (key === 'q') triggerQuest();
+                    else if (key === 't') triggerVoice();
+                    else input[key] = true;
+                });
+
+                btn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (key !== 'e' && key !== 'q' && key !== 't') {
+                        input[key] = false;
+                    }
+                });
+            });
+        }
+
+        function init() {
+            // 1. Setup Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB); // Sky blue
+            scene.fog = new THREE.Fog(0x87CEEB, 50, 700);
+
+            // 2. Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+
+            // 3. Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            // 4. Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+            sunLight.position.set(100, 200, 100);
+            sunLight.castShadow = true;
+            sunLight.shadow.camera.top = 200;
+            sunLight.shadow.camera.bottom = -200;
+            sunLight.shadow.camera.left = -200;
+            sunLight.shadow.camera.right = 200;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            scene.add(sunLight);
+
+            // 5. World Generation
+            createWorld();
+
+            // 6. Player (Spirit)
+            createSpirit();
+
+            // 7. Vehicles
+            // Initialize at GROUND_Y instead of 2
+            createCar(new THREE.Vector3(0, GROUND_Y, 0), 0xff0000);
+            createCar(new THREE.Vector3(20, GROUND_Y, 20), 0xffaa00);
+            createBoat(new THREE.Vector3(-100, WATER_LEVEL, 50));
+            createPlane(new THREE.Vector3(50, 2, -50));
+
+            // 8. Event Listeners
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('keydown', (e) => handleKey(e, true));
+            document.addEventListener('keyup', (e) => handleKey(e, false));
+
+            clock = new THREE.Clock();
+        }
+
+        function drawMinimap() {
+            // Clear background (Land Color)
+            mapCtx.fillStyle = '#33aa33';
+            mapCtx.fillRect(0, 0, 200, 200);
+
+            // Draw Lake (Map World coordinates to Canvas coordinates)
+            const lakeX = (-400 * MAP_SCALE) + MAP_OFFSET;
+            const lakeZ = (-200 * MAP_SCALE) + MAP_OFFSET;
+            const lakeW = (350 * MAP_SCALE);
+            const lakeH = (400 * MAP_SCALE);
+
+            mapCtx.fillStyle = '#0077be';
+            mapCtx.fillRect(lakeX, lakeZ, lakeW, lakeH);
+
+            // Draw Roads
+            mapCtx.fillStyle = '#444444'; // More distinctive road color for minimap
+            roads.forEach(r => {
+                const rx = (r.x * MAP_SCALE) + MAP_OFFSET - (r.w * MAP_SCALE / 2);
+                const rz = (r.z * MAP_SCALE) + MAP_OFFSET - (r.d * MAP_SCALE / 2);
+                mapCtx.fillRect(rx, rz, r.w * MAP_SCALE, r.d * MAP_SCALE);
+            });
+
+            // Draw Vehicles
+            vehicles.forEach(v => {
+                if (v === currentVehicle) return; // Don't draw self as a vehicle dot
+                const mx = (v.mesh.position.x * MAP_SCALE) + MAP_OFFSET;
+                const my = (v.mesh.position.z * MAP_SCALE) + MAP_OFFSET;
+
+                mapCtx.fillStyle = v.type === 'car' ? '#ff0000' : (v.type === 'plane' ? '#ffffff' : '#cccccc');
+                mapCtx.beginPath();
+                mapCtx.arc(mx, my, 3, 0, Math.PI * 2);
+                mapCtx.fill();
+            });
+
+            // Draw Player (Spirit or Vehicle)
+            const pPos = playerState === 'spirit' ? spiritObj.position : currentVehicle.mesh.position;
+            const px = (pPos.x * MAP_SCALE) + MAP_OFFSET;
+            const py = (pPos.z * MAP_SCALE) + MAP_OFFSET;
+
+            mapCtx.fillStyle = '#ffff00'; // Yellow Player
+            mapCtx.beginPath();
+            mapCtx.arc(px, py, 4, 0, Math.PI * 2);
+            mapCtx.fill();
+            mapCtx.strokeStyle = 'black';
+            mapCtx.lineWidth = 1;
+            mapCtx.stroke();
+        }
+
+        // --- Content Creation ---
+
+        function createWorld() {
+            // Ground (Land)
+            const landGeo = new THREE.PlaneGeometry(WORLD_SIZE, WORLD_SIZE, 64, 64);
+            const posAttribute = landGeo.attributes.position;
+            for (let i = 0; i < posAttribute.count; i++) {
+                let x = posAttribute.getX(i);
+                let y = posAttribute.getY(i);
+                let z = posAttribute.getZ(i);
+                if (x < -50 && x > -400 && y > -200 && y < 200) {
+                    posAttribute.setZ(i, -15);
+                } else {
+                    posAttribute.setZ(i, Math.random() * 1.5);
+                }
+            }
+            landGeo.computeVertexNormals();
+
+            const landMat = new THREE.MeshStandardMaterial({ color: 0x33aa33, flatShading: true });
+            const land = new THREE.Mesh(landGeo, landMat);
+            land.rotation.x = -Math.PI / 2;
+            land.receiveShadow = true;
+            scene.add(land);
+
+            // --- ROADS ---
+            const roadMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.9 }); // Darker, more distinctive grey
+            const dashedLineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+            function addRoad(x, z, w, d, hasDashedLine = false) {
+                const geo = new THREE.PlaneGeometry(w, d);
+                const mesh = new THREE.Mesh(geo, roadMat);
+                mesh.rotation.x = -Math.PI / 2;
+                mesh.position.set(x, 0.05, z); // Slightly above ground to avoid z-fighting
+                mesh.receiveShadow = true;
+                scene.add(mesh);
+                // Store for physics
+                roads.push({ x, z, w, d });
+
+                if (hasDashedLine) {
+                    const segmentLength = 5;
+                    const gapLength = 5;
+                    const lineThickness = 0.2;
+
+                    if (w > d) { // Horizontal road
+                        for (let i = -w / 2 + segmentLength / 2; i < w / 2; i += segmentLength + gapLength) {
+                            const lineGeo = new THREE.PlaneGeometry(segmentLength, lineThickness);
+                            const lineMesh = new THREE.Mesh(lineGeo, dashedLineMat);
+                            lineMesh.rotation.x = -Math.PI / 2;
+                            lineMesh.position.set(x + i, 0.06, z);
+                            scene.add(lineMesh);
+                        }
+                    } else { // Vertical road
+                        for (let i = -d / 2 + segmentLength / 2; i < d / 2; i += segmentLength + gapLength) {
+                            const lineGeo = new THREE.PlaneGeometry(lineThickness, segmentLength);
+                            const lineMesh = new THREE.Mesh(lineGeo, dashedLineMat);
+                            lineMesh.rotation.x = -Math.PI / 2;
+                            lineMesh.position.set(x, 0.06, z + i);
+                            scene.add(lineMesh);
+                        }
+                    }
+                }
+            }
+
+            // Outer Loop (added dashed lines to major segments)
+            addRoad(0, -400, 840, 40, true); // Top Edge
+            addRoad(0, 400, 840, 40, true);  // Bottom Edge
+            addRoad(-400, 0, 40, 840, true); // Left Edge
+            addRoad(400, 0, 40, 840, true);  // Right Edge
+
+            // Center Cross (added dashed lines)
+            addRoad(0, 0, 800, 40, true);    // Horizontal
+            addRoad(0, 0, 40, 800, true);    // Vertical
+
+            // ----------------
+
+            // Water
+            const waterGeo = new THREE.PlaneGeometry(350, 400);
+            const waterMat = new THREE.MeshStandardMaterial({
+                color: 0x0077be, transparent: true, opacity: 0.8, roughness: 0.1, metalness: 0.5
+            });
+            const water = new THREE.Mesh(waterGeo, waterMat);
+            water.rotation.x = -Math.PI / 2;
+            water.position.set(-225, WATER_LEVEL, 0);
+            scene.add(water);
+
+            // Trees
+            for (let i = 0; i < 50; i++) {
+                const x = (Math.random() - 0.5) * 800;
+                const z = (Math.random() - 0.5) * 800;
+
+                // Don't put trees in the lake
+                const inLake = (x < -50 && x > -400 && z > -200 && z < 200);
+
+                // Don't put trees on roads
+                let onRoad = false;
+                for (let r of roads) {
+                    if (Math.abs(x - r.x) < r.w / 2 + 5 && Math.abs(z - r.z) < r.d / 2 + 5) {
+                        onRoad = true;
+                        break;
+                    }
+                }
+
+                if (!inLake && !onRoad) {
+                    createTree(x, z);
+                }
+            }
+        }
+
+        function createTree(x, z) {
+            const group = new THREE.Group();
+            const trunkGeo = new THREE.CylinderGeometry(0.8, 1.2, 4, 6);
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5A4033 });
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.y = 2;
+            trunk.castShadow = true;
+            group.add(trunk);
+
+            const leavesGeo = new THREE.DodecahedronGeometry(3.5);
+            const leavesMat = new THREE.MeshStandardMaterial({ color: 0x2E8B57, flatShading: true });
+            const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+            leaves.position.y = 5;
+            leaves.castShadow = true;
+            group.add(leaves);
+
+            group.position.set(x, 0, z);
+            scene.add(group);
+
+            // Add to obstacles list (radius approx 1.5 for trunk/base)
+            obstacles.push({ position: new THREE.Vector3(x, 0, z), radius: 2.0 });
+        }
+
+        function createSpirit() {
+            const group = new THREE.Group();
+
+            // Core
+            const geometry = new THREE.IcosahedronGeometry(0.6, 1);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true });
+            const core = new THREE.Mesh(geometry, material);
+            group.add(core);
+
+            // Halo
+            const haloGeo = new THREE.TorusGeometry(1.0, 0.05, 8, 32);
+            const haloMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 });
+            const halo = new THREE.Mesh(haloGeo, haloMat);
+            halo.rotation.x = Math.PI / 2;
+            group.add(halo);
+
+            const light = new THREE.PointLight(0x00ffff, 1, 20);
+            group.add(light);
+
+            spiritObj = group;
+            spiritObj.position.set(0, 5, 10);
+
+            spiritObj.tick = function (t) {
+                core.rotation.y = t;
+                core.rotation.z = t * 0.5;
+                halo.rotation.x = (Math.PI / 2) + Math.sin(t) * 0.2;
+            }
+            scene.add(spiritObj);
+        }
+
+        // --- Vehicle Classes ---
+
+        class Vehicle {
+            constructor(mesh, type) {
+                this.mesh = mesh;
+                this.type = type;
+                this.speed = 0;
+                this.rotationSpeed = 0;
+                this.velocity = new THREE.Vector3();
+                this.onGround = true;
+            }
+            update(dt) { /* Override */ }
+        }
+
+        function createCar(pos, color) {
+            const group = new THREE.Group();
+            const meshContainer = new THREE.Group(); // Internal container for rotation
+
+            // Car Body
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            shape.lineTo(4.2, 0); shape.lineTo(4.2, 0.8); shape.lineTo(3.0, 1.6);
+            shape.lineTo(1.5, 1.6); shape.lineTo(0.2, 1.0); shape.lineTo(0, 0.8); shape.lineTo(0, 0);
+
+            const extrudeSettings = { steps: 1, depth: 2.2, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.1, bevelSegments: 2 };
+            const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: color, metalness: 0.3, roughness: 0.2 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.set(-2.1, 0.8, -1.1);
+            body.castShadow = true;
+            meshContainer.add(body);
+
+            // Windshield
+            const glassGeo = new THREE.PlaneGeometry(1.6, 0.8);
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.1 });
+            const windshield = new THREE.Mesh(glassGeo, glassMat);
+            windshield.position.set(1.4, 2.2, 0);
+            windshield.rotation.y = Math.PI / 2;
+            windshield.rotation.x = -0.5;
+            windshield.scale.set(1.3, 1, 1);
+            meshContainer.add(windshield);
+
+            // Lights
+            const lightGeo = new THREE.BoxGeometry(0.2, 0.2, 0.5);
+            const lightMat = new THREE.MeshStandardMaterial({ color: 0xffffaa, emissive: 0xffffaa, emissiveIntensity: 0.5 });
+            const leftLight = new THREE.Mesh(lightGeo, lightMat);
+            leftLight.position.set(2.1, 1.3, 0.7); meshContainer.add(leftLight);
+            const rightLight = new THREE.Mesh(lightGeo, lightMat);
+            rightLight.position.set(2.1, 1.3, -0.7); meshContainer.add(rightLight);
+
+            // Wheels
+            const wheelGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.4, 24);
+            const rubberMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
+            const rimGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.42, 16);
+            const rimMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.8 });
+
+            const wheelPositions = [{ x: 1.2, z: 1.1 }, { x: -1.2, z: 1.1 }, { x: 1.2, z: -1.1 }, { x: -1.2, z: -1.1 }];
+            wheelPositions.forEach(p => {
+                const wGroup = new THREE.Group();
+                const tire = new THREE.Mesh(wheelGeo, rubberMat); tire.rotation.x = Math.PI / 2;
+                const rim = new THREE.Mesh(rimGeo, rimMat); rim.rotation.x = Math.PI / 2;
+                wGroup.add(tire); wGroup.add(rim);
+                wGroup.position.set(p.x, 0.45, p.z); wGroup.castShadow = true;
+                meshContainer.add(wGroup);
+            });
+
+            // Rotate internal mesh so +Z is Forward
+            meshContainer.rotation.y = -Math.PI / 2;
+            group.add(meshContainer);
+
+            group.position.copy(pos);
+            scene.add(group);
+
+            const v = new Vehicle(group, 'car');
+            v.update = function (dt) {
+                const acc = 30;
+                let friction = 0.92; // Default Grass Friction (High Drag)
+                const turnSpeed = 2.0;
+
+                // Check if on road
+                let onRoad = false;
+                for (let r of roads) {
+                    // Simple AABB check
+                    if (Math.abs(this.mesh.position.x - r.x) < r.w / 2 &&
+                        Math.abs(this.mesh.position.z - r.z) < r.d / 2) {
+                        onRoad = true;
+                        break;
+                    }
+                }
+
+                if (onRoad) {
+                    friction = 0.98; // Road Friction (Low Drag = Faster)
+                }
+
+                if (input.w) this.speed += acc * dt;
+                if (input.s) this.speed -= acc * dt;
+
+                this.speed *= friction;
+
+                if (Math.abs(this.speed) > 0.1) {
+                    // Turning is sharper on road, slightly sluggish on grass? 
+                    // Let's keep turning consistent for playability, maybe slightly easier on road.
+                    const ts = onRoad ? turnSpeed : turnSpeed * 0.8;
+                    if (input.a) this.mesh.rotation.y += ts * dt * Math.sign(this.speed);
+                    if (input.d) this.mesh.rotation.y -= ts * dt * Math.sign(this.speed);
+                }
+
+                // Store old position for collision reversion
+                const oldPos = this.mesh.position.clone();
+
+                // Move along local Z (which is now aligned with visual front)
+                this.mesh.translateZ(this.speed * dt);
+
+                // Collision Detection
+                let hit = false;
+                for (let obs of obstacles) {
+                    // Simple distance check
+                    if (this.mesh.position.distanceTo(obs.position) < (2.5 + obs.radius)) {
+                        hit = true;
+                        break;
+                    }
+                }
+
+                if (hit) {
+                    this.mesh.position.copy(oldPos); // Revert move
+                    this.speed = -this.speed * 0.3; // Bounce back slightly
+                }
+
+                const x = this.mesh.position.x;
+                const z = this.mesh.position.z;
+                const inLake = (x < -50 && x > -400 && z > -200 && z < 200);
+
+                if (inLake) {
+                    this.speed *= 0.3;
+                    this.mesh.position.y = THREE.MathUtils.lerp(this.mesh.position.y, -1.5, dt * 2);
+                } else {
+                    // Use GROUND_Y to prevent clipping/floating
+                    this.mesh.position.y = GROUND_Y;
+                }
+            };
+            vehicles.push(v);
+        }
+
+        function createBoat(pos) {
+            const group = new THREE.Group();
+            const meshContainer = new THREE.Group();
+
+            const hullShape = new THREE.Shape();
+            hullShape.moveTo(0, 0); hullShape.lineTo(4, 1); hullShape.lineTo(0, 2);
+            hullShape.lineTo(-6, 2); hullShape.lineTo(-6, 0); hullShape.lineTo(0, 0);
+
+            const extrudeSettings = { steps: 1, depth: 2, bevelEnabled: true, bevelThickness: 0.2, bevelSize: 0.2, bevelSegments: 3 };
+            const hullGeo = new THREE.ExtrudeGeometry(hullShape, extrudeSettings);
+            const hullMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+            const hull = new THREE.Mesh(hullGeo, hullMat);
+            hull.rotation.x = Math.PI / 2; hull.position.set(0, 1, -1); hull.castShadow = true;
+            meshContainer.add(hull);
+
+            const cabinGeo = new THREE.BoxGeometry(3, 1.5, 1.8);
+            const cabinMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+            const cabin = new THREE.Mesh(cabinGeo, cabinMat); cabin.position.set(-2, 2, 0);
+            meshContainer.add(cabin);
+
+            const winGeo = new THREE.BoxGeometry(3.1, 0.5, 1.9);
+            const winMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.8 });
+            const win = new THREE.Mesh(winGeo, winMat); win.position.set(-2, 2.2, 0);
+            meshContainer.add(win);
+
+            const engineGeo = new THREE.BoxGeometry(1, 1.5, 1.5);
+            const engine = new THREE.Mesh(engineGeo, new THREE.MeshStandardMaterial({ color: 0x888888 }));
+            engine.position.set(-6.5, 1, 0); meshContainer.add(engine);
+
+            // Rotate internal mesh so +Z is Forward
+            meshContainer.rotation.y = -Math.PI / 2;
+            group.add(meshContainer);
+
+            group.position.copy(pos);
+            scene.add(group);
+
+            const v = new Vehicle(group, 'boat');
+            v.update = function (dt) {
+                const acc = 15;
+                const friction = 0.97;
+                const turnSpeed = 0.8;
+
+                const x = this.mesh.position.x;
+                const z = this.mesh.position.z;
+                const inLake = (x < -50 && x > -400 && z > -200 && z < 200);
+
+                if (inLake) {
+                    if (input.w) this.speed += acc * dt;
+                    if (input.s) this.speed -= acc * dt;
+                    // Sink boat slightly (-0.8) so hull is IN water, not ON water
+                    this.mesh.position.y = (WATER_LEVEL - 0.8) + Math.sin(clock.elapsedTime * 2.5) * 0.15;
+                    const targetRoll = (input.a ? 0.1 : (input.d ? -0.1 : 0));
+                    this.mesh.rotation.x = THREE.MathUtils.lerp(this.mesh.rotation.x, targetRoll, dt * 2);
+                } else {
+                    this.speed = 0;
+                    // Lower boat on land so it looks beached, not floating
+                    this.mesh.position.y = GROUND_Y - 0.4;
+                    this.mesh.rotation.x = 0;
+                }
+                this.speed *= friction;
+
+                if (Math.abs(this.speed) > 0.1) {
+                    if (input.a) this.mesh.rotation.y += turnSpeed * dt;
+                    if (input.d) this.mesh.rotation.y -= turnSpeed * dt;
+                }
+
+                // Move along local Z
+                this.mesh.translateZ(this.speed * dt);
+            };
+            vehicles.push(v);
+        }
+
+        function createPlane(pos) {
+            const group = new THREE.Group();
+            const meshContainer = new THREE.Group();
+
+            const fusGeo = new THREE.CylinderGeometry(0.8, 0.4, 10, 16);
+            fusGeo.rotateZ(Math.PI / 2);
+            const mat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, metalness: 0.2 });
+            const fuselage = new THREE.Mesh(fusGeo, mat);
+            fuselage.castShadow = true;
+            meshContainer.add(fuselage);
+
+            const cockpitGeo = new THREE.SphereGeometry(0.7, 16, 16);
+            const cockpitMat = new THREE.MeshStandardMaterial({ color: 0x88ccff, transparent: true, opacity: 0.7, metalness: 0.9, roughness: 0.0 });
+            const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
+            cockpit.scale.set(1, 2, 1); cockpit.rotation.z = Math.PI / 2; cockpit.position.set(1, 0.6, 0);
+            meshContainer.add(cockpit);
+
+            const wingShape = new THREE.Shape();
+            wingShape.moveTo(0, 0); wingShape.lineTo(2, 0.5); wingShape.lineTo(2, -0.5); wingShape.lineTo(0, -1.5);
+            const wingSettings = { steps: 1, depth: 0.1, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 2 };
+            const wingGeo = new THREE.ExtrudeGeometry(wingShape, wingSettings);
+            const wingMat = new THREE.MeshStandardMaterial({ color: 0xcc3333 });
+
+            const leftWing = new THREE.Mesh(wingGeo, wingMat);
+            leftWing.rotation.x = Math.PI / 2; leftWing.position.set(-1, 0, 1);
+            meshContainer.add(leftWing);
+
+            const rightWing = leftWing.clone();
+            rightWing.scale.z = -1; rightWing.rotation.x = Math.PI / 2; rightWing.position.set(-1, 0, -1);
+            meshContainer.add(rightWing);
+
+            const tailGeo = new THREE.BoxGeometry(1.5, 0.1, 3);
+            const tail = new THREE.Mesh(tailGeo, wingMat); tail.position.set(-4, 0.2, 0); meshContainer.add(tail);
+
+            const rudderGeo = new THREE.BoxGeometry(1.2, 2, 0.1);
+            const rudder = new THREE.Mesh(rudderGeo, wingMat); rudder.position.set(-4, 1, 0); meshContainer.add(rudder);
+
+            const noseGeo = new THREE.ConeGeometry(0.8, 1.5, 16); noseGeo.rotateZ(-Math.PI / 2);
+            const nose = new THREE.Mesh(noseGeo, new THREE.MeshStandardMaterial({ color: 0xcc3333 }));
+            nose.position.set(5.5, 0, 0); meshContainer.add(nose);
+
+            const bladeGeo = new THREE.BoxGeometry(0.1, 3.5, 0.3);
+            const prop = new THREE.Mesh(bladeGeo, new THREE.MeshStandardMaterial({ color: 0x333333 }));
+            prop.position.set(5.2, 0, 0); meshContainer.add(prop);
+
+            // Rotate internal mesh so +Z is Forward
+            meshContainer.rotation.y = -Math.PI / 2;
+            group.add(meshContainer);
+
+            group.position.copy(pos);
+            scene.add(group);
+
+            const v = new Vehicle(group, 'plane');
+            v.prop = prop;
+            v.update = function (dt) {
+                const acc = 20;
+                const liftSpeed = 15;
+                const drag = 0.99;
+
+                if (input.w) this.speed += acc * dt;
+                if (input.s) this.speed -= acc * dt;
+                this.speed *= drag;
+
+                this.prop.rotation.x += this.speed * dt;
+
+                const oldPos = this.mesh.position.clone();
+                this.mesh.translateZ(this.speed * dt);
+
+                // Collision Detection (Plane)
+                // Only check if flying low (Trees are about 8 units high max)
+                if (this.mesh.position.y < 8) {
+                    let hit = false;
+                    for (let obs of obstacles) {
+                        // Distance check ignoring Y height for simple cylinder collision, 
+                        // or 3D distance if we want to fly over them safely
+                        const distXZ = Math.hypot(this.mesh.position.x - obs.position.x, this.mesh.position.z - obs.position.z);
+                        if (distXZ < (3.0 + obs.radius)) {
+                            hit = true;
+                            break;
+                        }
+                    }
+
+                    if (hit) {
+                        this.mesh.position.copy(oldPos);
+                        this.speed = 0; // Crash!
+                        // Optional: add visual crash effect here later
+                    }
+                }
+
+                if (input.space) this.mesh.rotation.z -= 1.0 * dt;
+                if (input.shift) this.mesh.rotation.z += 1.0 * dt;
+
+                if (input.a) {
+                    this.mesh.rotation.y += 0.8 * dt;
+                    this.mesh.rotation.x = THREE.MathUtils.lerp(this.mesh.rotation.x, 0.5, dt * 2);
+                } else if (input.d) {
+                    this.mesh.rotation.y -= 0.8 * dt;
+                    this.mesh.rotation.x = THREE.MathUtils.lerp(this.mesh.rotation.x, -0.5, dt * 2);
+                } else {
+                    this.mesh.rotation.x = THREE.MathUtils.lerp(this.mesh.rotation.x, 0, dt);
+                }
+
+                const gravity = 9.8;
+                const lift = Math.min(Math.abs(this.speed) / liftSpeed, 1.2) * gravity;
+
+                if (this.speed < liftSpeed && this.mesh.position.y > 2) {
+                    this.mesh.position.y -= (gravity - lift) * dt;
+                }
+
+                if (this.mesh.position.y < 1.5) {
+                    this.mesh.position.y = 1.5;
+                    this.mesh.rotation.z = 0;
+                    this.mesh.rotation.x = 0;
+                }
+            };
+            vehicles.push(v);
+        }
+
+        // --- Input Handling ---
+
+        function handleKey(e, isDown) {
+            const k = e.key.toLowerCase();
+            if (k === 'w' || k === 'arrowup') input.w = isDown;
+            if (k === 'a' || k === 'arrowleft') input.a = isDown;
+            if (k === 's' || k === 'arrowdown') input.s = isDown;
+            if (k === 'd' || k === 'arrowright') input.d = isDown;
+            if (k === ' ') input.space = isDown;
+            if (k === 'shift') input.shift = isDown;
+
+            if (!isDown) { // Key Up Events
+                if (k === 'e') togglePossession();
+                if (k === 'q') triggerQuest();
+                if (k === 't') triggerVoice();
+            }
+        }
+
+        function triggerQuest() {
+            const context = getContext();
+            generateQuest(context);
+        }
+
+        function triggerVoice() {
+            const context = getContext();
+            generateSpiritThought(context);
+        }
+
+        function getContext() {
+            if (playerState === 'spirit') {
+                return { type: 'spirit', speed: 'Hovering', location: 'Air' };
+            }
+            const v = currentVehicle;
+            const speedVal = Math.round(v.speed * 10) / 10;
+            const loc = (v.type === 'boat') ? 'Water' : (v.type === 'plane' ? 'Sky' : 'Land');
+            return { type: v.type, speed: speedVal, location: loc };
+        }
+
+        function togglePossession() {
+            if (playerState === 'spirit') {
+                let closest = null;
+                let minDist = 15;
+                vehicles.forEach(v => {
+                    const d = spiritObj.position.distanceTo(v.mesh.position);
+                    if (d < minDist) {
+                        closest = v;
+                        minDist = d;
+                    }
+                });
+                if (closest) possess(closest);
+            } else {
+                eject();
+            }
+        }
+
+        function possess(vehicle) {
+            playerState = vehicle.type;
+            currentVehicle = vehicle;
+            spiritObj.visible = false;
+            statusEl.innerText = vehicle.type.toUpperCase();
+            statusEl.style.color = '#ffeb3b';
+            msgBox.style.opacity = 0;
+        }
+
+        function eject() {
+            if (!currentVehicle) return;
+            spiritObj.position.copy(currentVehicle.mesh.position);
+            spiritObj.position.y += 5;
+            spiritObj.visible = true;
+            playerState = 'spirit';
+            currentVehicle = null;
+            statusEl.innerText = 'SPIRIT';
+            statusEl.style.color = 'cyan';
+        }
+
+        // --- Main Loop ---
+
+        function updateSpirit(dt) {
+            if (spiritObj.tick) spiritObj.tick(clock.elapsedTime);
+
+            const speed = input.shift ? 40 : 15;
+            const rotateSpeed = 2.0;
+
+            if (input.a) spiritCameraAngle += rotateSpeed * dt;
+            if (input.d) spiritCameraAngle -= rotateSpeed * dt;
+
+            const forward = new THREE.Vector3(0, 0, -1);
+            forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), spiritCameraAngle);
+
+            if (input.w) spiritObj.position.add(forward.clone().multiplyScalar(speed * dt));
+            if (input.s) spiritObj.position.add(forward.clone().multiplyScalar(-speed * dt));
+
+            if (input.space) spiritObj.position.y += (speed * 0.6) * dt;
+            if (input.shift && !input.w && !input.s) spiritObj.position.y -= (speed * 0.6) * dt;
+
+            if (spiritObj.position.y < 1) spiritObj.position.y = 1;
+
+            let nearby = false;
+            vehicles.forEach(v => {
+                if (spiritObj.position.distanceTo(v.mesh.position) < 15) nearby = true;
+            });
+
+            if (!document.body.classList.contains('is-mobile')) {
+                msgBox.innerText = nearby ? "Press 'E' to Possess" : "";
+            } else {
+                msgBox.innerText = nearby ? "Tap 'Possess'" : "";
+            }
+            msgBox.style.opacity = nearby ? 1 : 0;
+        }
+
+        function updateCamera(dt) {
+            let targetPos;
+
+            if (playerState === 'spirit') {
+                targetPos = spiritObj.position;
+                const dist = 20;
+                const height = 8;
+                const cx = targetPos.x + Math.sin(spiritCameraAngle) * dist;
+                const cz = targetPos.z + Math.cos(spiritCameraAngle) * dist;
+                const idealPos = new THREE.Vector3(cx, targetPos.y + height, cz);
+                camera.position.lerp(idealPos, dt * 5);
+                camera.lookAt(targetPos);
+            } else {
+                targetPos = currentVehicle.mesh.position;
+                if (playerState === 'plane') cameraOffset.set(0, 8, -20);
+                else cameraOffset.set(0, 6, -12);
+
+                const relativeOffset = cameraOffset.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), currentVehicle.mesh.rotation.y);
+                const idealPos = targetPos.clone().add(relativeOffset);
+                camera.position.lerp(idealPos, dt * 5);
+                camera.lookAt(targetPos);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const dt = clock.getDelta();
+
+            if (playerState === 'spirit') {
+                updateSpirit(dt);
+            } else if (currentVehicle) {
+                currentVehicle.update(dt);
+            }
+
+            // Update all vehicles (physics still applies even if not possessed - e.g. friction)
+            vehicles.forEach(v => {
+                if (v !== currentVehicle) {
+                    v.speed *= 0.95; // Slow down if nobody driving
+                    if (Math.abs(v.speed) > 0.1) v.mesh.translateZ(v.speed * dt);
+
+                    // --- NEW: Apply Environment Logic to Unpossessed Vehicles ---
+                    if (v.type === 'boat') {
+                        v.mesh.position.y = WATER_LEVEL + Math.sin(clock.elapsedTime * 2) * 0.2;
+                    } else if (v.type === 'car') {
+                        // Ensure cars stay on ground or sink in lake even when not possessed
+                        const x = v.mesh.position.x;
+                        const z = v.mesh.position.z;
+                        const inLake = (x < -50 && x > -400 && z > -200 && z < 200);
+                        if (inLake) {
+                            v.mesh.position.y = THREE.MathUtils.lerp(v.mesh.position.y, -1.5, dt * 2);
+                        } else {
+                            v.mesh.position.y = GROUND_Y;
+                        }
+                    }
+                    // ------------------------------------------------------------
+                }
+            });
+
+            updateCamera(dt);
+            drawMinimap();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            checkMobile();
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+
+</html>
